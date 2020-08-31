@@ -1,0 +1,61 @@
+---
+title: "Lab 2"
+author: "Vista Sohrab"
+date: "8/31/2020"
+output: html_document
+bibliography: data/references.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Lab 1 Exercises 
+### Exercise 1
+```{r Exercise 1}
+x <- 3
+y <- 15
+
+sum <- x+y
+diff <- x-y
+product <- x*y
+quotient <- x/y
+
+sum
+diff
+product
+quotient
+```
+### Exercise 2
+```{r Exercise 2}
+
+x <- 2
+y <- 3
+
+x^5 > y^4
+
+```
+
+### Exercise 3
+```{r Exercise 3}
+num <- c(22, 62, 148, 43, 129)
+sum_num <- sum(num)
+freq <- num/sum_num
+
+num
+sum_num
+freq
+```
+
+### Exercise 4
+
+```{r Exercise 4}
+nucl <- c('A', 'T', 'C', 'G')
+nucl
+sort(nucl)
+```
+
+
+Application written in R [@RCoreTeam] using the Shiny framework [@Chang2015].
+
+# References
