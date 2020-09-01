@@ -1,18 +1,27 @@
 ---
+title: "Evolutionary Genomics and Bioinformatics"
 author: "Vista Sohrab"
 date: "8/31/2020"
 output: html_document
+bibliography: data/references.bib
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Evolutionary Genomics and Bioinformatics Labs
 
 This site provides links to labs from the Evolutionary Genomics and Bioinformatics course.
 
-### R Basics
+## Labs
+#### R Basics
 
 * 1: [Introduction to R and Reproducible Research](lab1_VistaSohrab.html)
 * 2: [git, GitHub and Rstudio project](lab2_VistaSohrab.html)
+
+
+
+Application written in R [@RCoreTeam] using the Shiny framework [@Chang2015].
+
+##  References
+
