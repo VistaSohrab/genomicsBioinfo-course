@@ -21,7 +21,3 @@ This site provides links to labs from the Evolutionary Genomics and Bioinformati
 
 
 
-Application written in R [@RCoreTeam] using the Shiny framework [@Chang2015].
-
-##  References
-
