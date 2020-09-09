@@ -19,6 +19,7 @@ This site provides links to labs from the Evolutionary Genomics and Bioinformati
 * 1: [Introduction to R and Reproducible Research](lab1_VistaSohrab.html)
 * 2: [git, GitHub and Rstudio project](lab2_VistaSohrab.html)
 * 3A: [Data Wrangling: Starting with the data](lab3A_VistaSohrab.html)
+* 3B: [Data Wrangling: Manipulating and Analyzing Data with tidyverse](lab3B_VistaSohrab.html)
 
 
 
