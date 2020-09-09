@@ -1,0 +1,352 @@
+---
+title: "Lab 3B"
+author: "Vista Sohrab"
+date: "9/7/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r warning=FALSE}
+library(tidyverse)
+```
+
+# Data Manipulation using dplyr and tidyr
+
+### Importing data and inspecting
+```{r import data}
+animal_survey <- read_csv("data/portal_data_joined.csv")
+str(animal_survey)
+```
+
+### Selecting Columns and Filtering Rows
+
+```{r select}
+# selecting plot_id, species_id and weight columns
+select(animal_survey, plot_id, species_id, weight)
+
+# excluding record_id and species_id 
+select(animal_survey, -record_id, -species_id)
+
+#choosing rows based on specific criterion
+filter(animal_survey, year == 1995)
+```
+
+## Pipes
+
+Intermediate steps:
+```{r intermediate steps}
+animal_survey2 <- filter(animal_survey, weight < 5)
+animal_survey_sml <- select(animal_survey2, species_id, sex, weight)
+animal_survey_sml
+```
+
+Nest functions:
+```{r nested}
+animal_survey_sml_nested <- select(filter(animal_survey, weight < 5), species_id, sex, weight)
+animal_survey_sml_nested
+```
+
+Pipes:
+```{r}
+animal_survey %>% 
+  filter(weight < 5) %>% 
+  select(species_id, sex, weight)
+```
+
+Create subsetted dataframe:
+```{r}
+animal_survey_sml_piped <- animal_survey %>% 
+  filter(weight < 5) %>% 
+  select(species_id, sex, weight)
+animal_survey_sml_piped
+```
+
+## Challenge 1
+
+```{r}
+animal_survey_pre95 <- animal_survey %>% 
+  filter(year < 1995) %>% 
+  select(year, sex, weight)
+
+animal_survey_pre95
+```
+
+### Mutate
+
+Create new column of weight in kilograms:
+
+```{r}
+animal_survey %>% 
+  mutate(weight_kg = weight/1000) %>% 
+  head()
+
+```
+
+Create column of weight in kilograms and weight in pounds:
+```{r}
+animal_survey %>% 
+  mutate(weight_kg = weight/1000,
+         weight_lb = weight_kg * 2.2) %>% 
+  head()
+```
+
+Filter out NAs:
+```{r}
+animal_survey %>%
+  filter(!is.na(weight)) %>%
+  mutate(weight_kg = weight / 1000) %>%
+  head()
+```
+
+## Challenge 2
+
+```{r}
+animal_survey_hindfoot_cm <- animal_survey %>% 
+  filter(! is.na(hindfoot_length)) %>% 
+  mutate(hindfoot_cm = hindfoot_length / 10) %>% 
+  select(species_id, hindfoot_cm) %>% 
+  filter(hindfoot_cm < 3)
+
+animal_survey_hindfoot_cm
+```
+
+### Split-apply-combine data analysis
+
+```{r}
+
+animal_survey %>%
+  group_by(sex) %>%
+  summarize(mean_weight = mean(weight, na.rm = TRUE))
+```
+
+```{r}
+#calling mean on vector of NA values (weights were NA) generating NaN in the first few rows
+animal_survey %>%
+  group_by(sex, species_id) %>%
+  summarize(mean_weight = mean(weight, na.rm = TRUE)) %>% 
+  head()
+
+animal_survey %>%
+  group_by(sex, species_id) %>%
+  summarize(mean_weight = mean(weight, na.rm = TRUE)) %>% 
+  tail
+```
+
+Remove missing values first by filtering them out and calculating the mean:
+```{r}
+animal_survey %>%
+  filter(!is.na(weight)) %>%
+  group_by(sex, species_id) %>%
+  summarize(mean_weight = mean(weight))
+```
+
+To specify the number of rows displayed, print is used with the number of rows as an argument:
+```{r}
+animal_survey %>%
+  filter(!is.na(weight)) %>%
+  group_by(sex, species_id) %>%
+  summarize(mean_weight = mean(weight)) %>%
+  print(n = 15)
+```
+
+To summarize multiple variables simultaneously:
+```{r}
+animal_survey %>%
+  filter(!is.na(weight)) %>%
+  group_by(sex, species_id) %>%
+  summarize(mean_weight = mean(weight),
+            min_weight = min(weight))
+```
+
+To rearrange results of the query by minimum weight:
+```{r}
+animal_survey %>%
+  filter(!is.na(weight)) %>%
+  group_by(sex, species_id) %>%
+  summarize(mean_weight = mean(weight),
+            min_weight = min(weight)) %>%
+  arrange(min_weight)
+```
+
+Sorting results by minimum weight in descending order:
+```{r}
+animal_survey %>%
+  filter(!is.na(weight)) %>%
+  group_by(sex, species_id) %>%
+  summarize(mean_weight = mean(weight),
+            min_weight = min(weight)) %>%
+  arrange(desc(mean_weight))
+```
+
+### Counting
+
+```{r}
+animal_survey %>% 
+  count(sex)
+
+#equivalent to count using summarize
+
+animal_survey %>%
+    group_by(sex) %>%
+    summarise(count = n())
+
+#sorting with count
+
+animal_survey %>%
+    count(sex, sort = TRUE) 
+
+#use arrange for better comparison
+animal_survey %>%
+  count(sex, species) %>%
+  arrange(species, desc(n))
+
+```
+
+## Challenge 3
+
+1)
+```{r}
+animal_survey %>% 
+  count(plot_type)
+```
+
+2) 
+```{r}
+animal_survey %>% 
+  filter(!is.na(hindfoot_length)) %>%
+  group_by(species_id) %>% 
+  summarise(mean_hindfoot_len = mean(hindfoot_length),
+            min_hindfoot_len = min(hindfoot_length),
+            max_hindfoot_len = max(hindfoot_length),
+            num_observed = n())
+```
+
+3)
+```{r}
+animal_survey %>% 
+  filter(!is.na(weight)) %>%
+  group_by(year) %>% 
+  filter(weight == max(weight)) %>% 
+  select(year, genus, species_id, weight) %>% 
+  arrange(year)
+
+```
+
+## Reshaping
+
+### Spread
+
+Transforming animal_survey dataframe to find the mean weight of each genus in each plot over the entire survey period:
+
+```{r}
+animal_survey_gw <- animal_survey %>%
+  filter(!is.na(weight)) %>%
+  group_by(plot_id, genus) %>%
+  summarize(mean_weight = mean(weight))
+
+str(animal_survey_gw)
+```
+
+
+```{r}
+animal_survey_spread <- animal_survey_gw %>%
+  spread(key = genus, value = mean_weight)
+
+str(animal_survey_spread)
+
+animal_survey_gw %>%
+  spread(genus, mean_weight, fill = 0) %>%
+  head()
+```
+
+### Gather
+
+```{r}
+animal_survey_gather <- animal_survey_spread %>%
+  gather(key = "genus", value = "mean_weight", -plot_id)
+
+str(animal_survey_gather)
+
+#To specify what columns to include 
+
+animal_survey_spread %>%
+  gather(key = "genus", value = "mean_weight", Baiomys:Spermophilus) %>%
+  head()
+```
+
+## Challenge 4
+
+1)
+```{r}
+num_genera_reshaped <- animal_survey %>%
+  group_by(plot_id, year) %>% 
+  summarise(num_genera=n_distinct(genus)) %>% 
+  spread(key=year, value=num_genera)
+
+num_genera_reshaped
+```
+
+2)
+```{r}
+num_genera_revert <- num_genera_reshaped %>% 
+  gather(key="year", value="num_genera", -plot_id)
+
+num_genera_revert
+```
+
+3)
+```{r}
+animal_survey_hindfoot_weight <- animal_survey %>% 
+  gather("measurement", "value", hindfoot_length, weight)
+
+animal_survey_hindfoot_weight
+```
+
+4)
+```{r}
+animal_survey_hindfoot_weight %>%
+  group_by(year, measurement, plot_type) %>%
+  summarize(mean_value = mean(value, na.rm=TRUE)) %>%
+  spread(measurement, mean_value)
+
+```
+
+## Exporting Data
+
+Filtering out NA values from observations:
+```{r}
+animal_survey_complete <- animal_survey %>%
+  filter(!is.na(weight),          
+         !is.na(hindfoot_length),  
+         !is.na(sex))                
+```
+
+
+Extract highly common species ID:
+```{r}
+species_counts <- animal_survey_complete %>%
+    count(species_id) %>% 
+    filter(n >= 50)
+head(species_counts)
+```
+
+Retain the most common species and reassign to animal_survey_complete dataframe:
+```{r}
+
+animal_survey_complete <- animal_survey_complete %>%
+  filter(species_id %in% species_counts$species_id)
+
+animal_survey_complete
+dim(animal_survey_complete)
+```
+
+Write data set and keep as CSV file in data folder for future analysis:
+```{r}
+write_csv(animal_survey_complete, path = "data/surveys_complete.csv")
+```
+
