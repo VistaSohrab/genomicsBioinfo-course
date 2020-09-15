@@ -1,0 +1,198 @@
+---
+title: "Lab 4"
+author: "Vista Sohrab"
+date: "9/14/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Loading Libraries and COVID-19 Data from the John Hopkins University (JHU) interactive dashboard
+
+Load necessary libraries for this lab into the environment.
+```{r load libraries, warning=FALSE}
+library(tidyverse)
+library(DT)
+```
+
+Import March 11, 2020 COVID-19 data from the JHU interactive dashboard GitHub repository, and change the column names containing "/"to "_" to prevent downstream errors from occurring.
+```{r}
+report_03_11_2020 <- read_csv(url("https://github.com/CSSEGISandData/COVID-19/raw/master/csse_covid_19_data/csse_covid_19_daily_reports/03-11-2020.csv")) %>% 
+  rename(Country_Region = "Country/Region", Province_State = "Province/State")
+```
+
+Checking the structure of the datatable to ensure that everything is as expected:
+
+```{r}
+str(report_03_11_2020)
+```
+
+## Interactive Data Tables
+
+```{r}
+datatable(report_03_11_2020)
+```
+
+## Exercises (Part 1)
+
+1) The recent COVID-19 data set from September 13, 2020 has additional columns when compared to the March 13, 2020 dataset. FIPS, Admin2, Active, Combined_Key,Incidence_Rate, and Case-Fatility_Ratio are the 6 columns that have been added to the most recent dataset. 
+```{r}
+report_03_13_2020 <- read_csv(url("https://github.com/CSSEGISandData/COVID-19/raw/master/csse_covid_19_data/csse_covid_19_daily_reports/03-13-2020.csv")) %>% 
+  rename(Country_Region = "Country/Region", Province_State = "Province/State")
+
+report_09_13_2020 <- read_csv(url("https://github.com/CSSEGISandData/COVID-19/raw/master/csse_covid_19_data/csse_covid_19_daily_reports/09-13-2020.csv"))
+
+str(report_03_13_2020)
+str(report_09_13_2020)
+```
+
+2) A dataframe containing total counts of confirmed, deaths, and recoveries for every country based on March 13, 2020 COVID-19 dataset.
+
+```{r}
+report_03_13_2020 %>% 
+  group_by(Country_Region) %>% 
+  summarize(Total_Confirmed = sum(Confirmed), Total_Deaths = sum(Deaths), Total_Recovered = sum(Recovered)) %>% 
+  datatable()
+```
+
+A dataframe containing total counts of confirmed, deaths, and recoveries for every country based on most recent September 13, 2020 COVID-19 dataset.
+
+```{r}
+report_09_13_2020 %>% 
+  group_by(Country_Region) %>% 
+  summarize(Total_Confirmed = sum(Confirmed), Total_Deaths = sum(Deaths), Total_Recovered = sum(Recovered)) %>% 
+  datatable()
+```
+
+3) Counts of confirmed cases in the United States per state from March 13, 2020 is as follows
+
+```{r}
+report_03_13_2020 %>% 
+  filter(Country_Region == "US") %>% 
+  group_by(Province_State) %>% 
+  summarize(Confirmed) %>% 
+  datatable()
+```
+
+
+Counts of confirmed cases in the United States per state from September 13, 2020 is the following:
+
+```{r}
+report_09_13_2020 %>% 
+  filter(Country_Region == "US") %>% 
+  group_by(Province_State) %>% 
+  summarize(sum(Confirmed)) %>% 
+  datatable()
+```
+
+
+4) The top 10 countries for COVID-19 deaths based on the March 13, 2020 dataset is in the datatable below.
+```{r}
+report_03_13_2020 %>% 
+  group_by(Country_Region) %>% 
+  summarize(Total_Deaths = sum(Deaths)) %>% 
+  arrange(desc(Total_Deaths)) %>% 
+  slice(1:10) %>% 
+  datatable()
+```
+
+The top 10 countries for COVID-19 deaths six months later based on the September 13, 2020 dataset is in the datatable below.
+
+```{r}
+report_09_13_2020 %>% 
+  group_by(Country_Region) %>% 
+  summarize(Total_Deaths = sum(Deaths)) %>% 
+  arrange(desc(Total_Deaths)) %>% 
+  slice(1:10) %>% 
+  datatable()
+```
+
+## Exercises (Part 2)
+
+5) After importing the March 12 and September 12 2020 datasets, dataframes of the 10 countries with the most confirmed cases and deaths are acquired. Lastly, two separate scatterplots for each date has been provided.
+```{r}
+#Import March 12th and September 12th dataframes from JHU CSSE COVID-19 GitHub repository
+report_03_12_2020 <- read_csv(url("https://github.com/CSSEGISandData/COVID-19/raw/master/csse_covid_19_data/csse_covid_19_daily_reports/03-12-2020.csv")) %>% 
+  rename(Country_Region = "Country/Region", Province_State = "Province/State")
+
+report_09_12_2020 <- read_csv(url("https://github.com/CSSEGISandData/COVID-19/raw/master/csse_covid_19_data/csse_covid_19_daily_reports/09-12-2020.csv"))
+```
+
+
+```{r}
+#Create 10 countries with highest COVID-19 confirmed cases and deaths for the two different dates
+#March 12, 2020
+March_Top10 <- report_03_12_2020 %>% 
+  group_by(Country_Region) %>% 
+  summarize(Total_Confirmed = sum(Confirmed), Total_Deaths = sum(Deaths)) %>% 
+  arrange(desc(Total_Deaths)) %>% 
+  slice(1:10)
+
+datatable(March_Top10)
+
+#September 12, 2020
+Sept_Top10 <- report_09_12_2020 %>% 
+  group_by(Country_Region) %>% 
+  summarize(Total_Confirmed = sum(Confirmed), Total_Deaths = sum(Deaths)) %>% 
+  arrange(desc(Total_Deaths)) %>% 
+  slice(1:10)
+
+datatable(Sept_Top10)
+```
+
+Scatterplots of 10 countries with the highest total confirmed cases and deaths reported on March 12, 2020 and September 12, 2020 respectively.
+```{r}
+#March 12, 2020 scatterplot
+ggplot() + geom_point(data=March_Top10, mapping = aes(March_Top10$Total_Confirmed, March_Top10$Total_Deaths)) + xlab("total confirmed cases") + ylab("total deaths") + ggtitle("Countries with Highest COVID-19 Confirmed Cases vs Deaths on 03/12/2020") + theme_bw()
+```
+
+```{r}
+#September 12, 2020 scatterplot
+ggplot() + geom_point(data=Sept_Top10, mapping = aes(Sept_Top10$Total_Confirmed, Sept_Top10$Total_Deaths)) + xlab("total confirmed cases") + ylab("total deaths") + ggtitle("Countries with Highest COVID-19 Confirmed Cases vs Deaths on 09/12/2020") + theme_bw()
+```
+
+
+6) Barplots of US states with highest confirmed cases and deaths related to COVID-19 in March and September are shown in the following sections. First the respective data tables are obtained. 
+```{r}
+US_states_Mar2020 <- report_03_12_2020%>% 
+  filter(Country_Region == "US") %>% 
+  group_by(Province_State) %>% 
+  summarize(Confirmed, Deaths)%>% 
+  arrange(desc(Confirmed,Deaths)) %>% 
+  slice(1:10)
+
+  datatable(US_states_Mar2020)
+
+
+
+US_states_Sept2020 <- report_09_12_2020%>% 
+  filter(Country_Region == "US") %>% 
+  group_by(Province_State) %>% 
+  summarize(Total_Confirmed = sum(Confirmed), Total_Deaths = sum(Deaths)) %>% 
+  arrange(desc(Total_Confirmed, Total_Deaths)) %>% 
+  slice(1:10)
+
+  datatable(US_states_Sept2020)
+```
+
+Two bar plots for March 2020 and September 2020  highest ranking US states with confirmed COVID-19 cases. 
+```{r}
+ggplot(data=US_states_Mar2020, aes(reorder(US_states_Mar2020$Province_State,-US_states_Mar2020$Confirmed), US_states_Mar2020$Confirmed)) + geom_bar(stat= "identity") + xlab("US State") + ylab("Number of Confirmed Cases") + ggtitle("10 US States with Highest Confirmed COVID-19 Cases on 03/12/2020") + theme_bw()
+
+
+ggplot(data=US_states_Sept2020, aes(reorder(US_states_Sept2020$Province_State,-US_states_Sept2020$Total_Confirmed), US_states_Sept2020$Total_Confirmed)) + geom_bar(stat= "identity") + xlab("US State") + ylab("Number of Confirmed Cases") + ggtitle("10 US States with Highest Confirmed COVID-19 Cases on 09/12/2020")+ theme_bw()
+```
+
+Two bar plots for March 2020 and September 2020 highest ranking US states with COVID-19 related deaths.
+
+```{r}
+ggplot(data=US_states_Mar2020, aes(reorder(US_states_Mar2020$Province_State,-US_states_Mar2020$Deaths), US_states_Mar2020$Deaths)) + geom_bar(stat="identity") + scale_x_discrete(drop = TRUE)+ xlab("US State") + ggtitle("10 US States with Highest COVID-19 Deaths on March 12, 2020") + ylab("Number of Deaths")+ theme_bw()
+
+
+ggplot(data=US_states_Sept2020, aes(reorder(US_states_Sept2020$Province_State,-US_states_Sept2020$Total_Deaths), US_states_Sept2020$Total_Deaths)) + geom_bar(stat= "identity") + xlab("US State") + ylab("Number of Deaths") + ggtitle("10 US States with Highest COVID-19 Deaths on September 12, 2020") + theme_bw()
+```
+
