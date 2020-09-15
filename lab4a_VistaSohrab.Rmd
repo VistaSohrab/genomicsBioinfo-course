@@ -1,0 +1,148 @@
+---
+title: "Lab 4a"
+author: "Vista Sohrab"
+date: "9/14/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data Visualization with ggplot2
+
+
+```{r loading libraries, warning=FALSE}
+library(tidyverse)
+library(hexbin)
+```
+
+## Plotting with ggplot2
+
+Importing the surveys_complete.csv file:
+```{r}
+surveys_complete <- read_csv("data/surveys_complete.csv")
+```
+
+Scatterplot of weight vs hindfoot length using the survey_complete dataframe:
+```{r}
+ggplot(data=surveys_complete, mapping=aes(x=weight, y=hindfoot_length)) + geom_point()+ theme_bw()
+```
+
+Alternative method of adding layers to a ggplot by assigning plot to a variable:
+```{r}
+surveys_plot <- ggplot(data=surveys_complete, mapping=aes(x=weight, y=hindfoot_length))
+surveys_plot + geom_point() + theme_bw()
+```
+
+## Optional Challenge 
+
+The hexagonal plot has a heat map associated with the number of points belonging to a particular hexagonal bin which helps with reducing overplotting in large datasets. The hexagonal plot seems to show the general trend without overwhelming the viewer while providing the number of points belonging to a particular bin. The scatterplot however provides more detail since all individual points that are not overplotted can be mainly seen while the hexagonal plot combines several points into one bin and the range of points within that bin remains unknown to the viewer as a single dark blue bin could encompass a single point to 500 points. 
+```{r}
+surveys_plot +
+ geom_hex() + theme_bw()
+```
+
+## Building Plots Iteratively
+
+```{r}
+ggplot(data = surveys_complete, aes(x = weight, y = hindfoot_length)) +
+    geom_point() + theme_bw()
+```
+
+
+Adding transparency using alpha parameter to avoid overplotting:
+
+```{r}
+ggplot(data = surveys_complete, aes(x = weight, y = hindfoot_length)) +
+    geom_point(alpha = 0.1) + theme_bw()
+```
+
+
+Adding color to the scatterplot:
+
+```{r}
+ggplot(data = surveys_complete, mapping = aes(x = weight, y = hindfoot_length)) +
+    geom_point(alpha = 0.1, color = "blue") + theme_bw()
+```
+
+
+Each species can be colored differently in the plot by using a vector as input to the color argument.
+
+```{r}
+ggplot(data = surveys_complete, mapping = aes(x = weight, y = hindfoot_length)) +
+    geom_point(alpha = 0.1, aes(color = species_id))
+```
+
+## Challenge 1
+
+The plot is slightly difficult to interpet.
+```{r}
+ggplot(data = surveys_complete, mapping = aes(x = species_id, y = weight)) + 
+  geom_point(alpha = 0.6, aes(color = plot_type)) + theme_bw()
+```
+
+## Boxplot
+
+Visualizing the distribution of weight for each species:
+
+```{r}
+ggplot(data = surveys_complete, mapping = aes(x = species_id, y = weight)) +
+    geom_boxplot() + theme_bw()
+```
+
+
+
+Adding points to boxplots to give a better indication of the number of measurements and their distribution:
+```{r}
+ggplot(data = surveys_complete, mapping = aes(x = species_id, y = weight)) +
+    geom_boxplot(alpha = 0) +
+    geom_jitter(alpha = 0.3, color = "tomato") +
+    theme_bw()
+```
+
+Boxplot in front of the points:
+```{r}
+ggplot(data = surveys_complete, mapping = aes(x = species_id, y = weight)) +
+    geom_jitter(alpha = 0.3, color = "tomato") +
+    geom_boxplot() + 
+    theme_bw()
+```
+
+## Challenge 2
+
+* Replacing boxplot with a violin plot:
+```{r}
+ggplot(data = surveys_complete, mapping = aes(x = species_id, y = weight)) +
+    geom_jitter(alpha = 0.1, color = "tomato") +
+    geom_violin() + theme_bw()
+```
+
+* Represent weight on the log 10 scale
+
+```{r}
+ggplot(data = surveys_complete, mapping = aes(x = species_id, y = weight)) +
+    geom_jitter(alpha = 0.1, color = "tomato") +
+    geom_violin() + scale_y_log10() + theme_bw() 
+```
+
+* Boxplot for hindfoot_length:
+```{r}
+ggplot(data= surveys_complete, mapping = aes(x = species_id, y = hindfoot_length)) + 
+  geom_jitter(alpha = 0.1, color = "dark orchid4") +
+  geom_boxplot() + theme_bw()
+```
+
+* Adding color to boxplots according to plot_id:
+```{r}
+typeof(surveys_complete$plot_id)
+surveys_complete$plot_id <- factor(surveys_complete$plot_id)
+
+ggplot(data= surveys_complete, mapping = aes(x = species_id, y = hindfoot_length)) + 
+  geom_jitter(alpha = 0.3, aes(color = plot_id)) +
+  geom_boxplot() + theme_bw()
+```
+
+
