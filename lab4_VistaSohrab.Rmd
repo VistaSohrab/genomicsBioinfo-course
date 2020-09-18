@@ -113,7 +113,7 @@ report_09_13_2020 %>%
 
 ## Exercises (Part 2)
 
-5) After importing the March 12 and September 12 2020 datasets, dataframes of the 10 countries with the most confirmed cases and deaths are acquired. Lastly, two separate scatterplots for each date has been provided.
+5) After importing the March 12 and September 12 2020 datasets, dataframes of the 10 countries with the most confirmed cases and deaths are acquired. Separate scatterplots for confirmed cases and deaths from each date has been provided.
 ```{r}
 #Import March 12th and September 12th dataframes from JHU CSSE COVID-19 GitHub repository
 report_03_12_2020 <- read_csv(url("https://github.com/CSSEGISandData/COVID-19/raw/master/csse_covid_19_data/csse_covid_19_daily_reports/03-12-2020.csv")) %>% 
@@ -146,14 +146,27 @@ datatable(Sept_Top10)
 
 Scatterplots of 10 countries with the highest total confirmed cases and deaths reported on March 12, 2020 and September 12, 2020 respectively.
 ```{r}
-#March 12, 2020 scatterplot
-ggplot() + geom_point(data=March_Top10, mapping = aes(March_Top10$Total_Confirmed, March_Top10$Total_Deaths)) + xlab("total confirmed cases") + ylab("total deaths") + ggtitle("Countries with Highest COVID-19 Confirmed Cases vs Deaths on 03/12/2020") + theme_bw()
+#March 12, 2020 scatterplot Confirmed Cases
+ggplot() + geom_point(data=March_Top10, mapping = aes(March_Top10$Country_Region, March_Top10$Total_Confirmed)) + xlab("Country") + ylab("Total Confirmed") + ggtitle("Countries with Highest COVID-19 Confirmed Cases on 03/12/2020") + theme_bw()
+```
+
+
+```{r}
+#March 12, 2020 scatterplot COVID-19 Deaths
+ggplot() + geom_point(data=March_Top10, mapping = aes(March_Top10$Country_Region, March_Top10$Total_Deaths)) + xlab("Country") + ylab("Total Deaths") + ggtitle("Countries with Highest COVID-19 Deaths on 03/12/2020") + theme_bw()
 ```
 
 ```{r}
-#September 12, 2020 scatterplot
-ggplot() + geom_point(data=Sept_Top10, mapping = aes(Sept_Top10$Total_Confirmed, Sept_Top10$Total_Deaths)) + xlab("total confirmed cases") + ylab("total deaths") + ggtitle("Countries with Highest COVID-19 Confirmed Cases vs Deaths on 09/12/2020") + theme_bw()
+#September 12, 2020 scatterplot Total Confirmed Cases
+ggplot() + geom_point(data=Sept_Top10, mapping = aes(Sept_Top10$Country_Region, Sept_Top10$Total_Confirmed)) + xlab("Country") + ylab("Total Confirmed") + ggtitle("Countries with Highest COVID-19 Confirmed Cases on 09/12/2020") + theme_bw()
 ```
+
+
+```{r}
+#September 12, 2020 scatterplot Total Deaths
+ggplot() + geom_point(data=Sept_Top10, mapping = aes(Sept_Top10$Country_Region, Sept_Top10$Total_Deaths)) + xlab("Country") + ylab("Total Deaths") + ggtitle("Countries with Highest COVID-19 Deaths on 09/12/2020") + theme_bw()
+```
+
 
 
 6) Barplots of US states with highest confirmed cases and deaths related to COVID-19 in March and September are shown in the following sections. First the respective data tables are obtained. 
@@ -179,7 +192,7 @@ US_states_Sept2020 <- report_09_12_2020%>%
   datatable(US_states_Sept2020)
 ```
 
-Two bar plots for March 2020 and September 2020  highest ranking US states with confirmed COVID-19 cases. 
+Two bar plots for March 2020 and September 2020 highest ranking US states with confirmed COVID-19 cases. 
 ```{r}
 ggplot(data=US_states_Mar2020, aes(reorder(US_states_Mar2020$Province_State,-US_states_Mar2020$Confirmed), US_states_Mar2020$Confirmed)) + geom_bar(stat= "identity") + xlab("US State") + ylab("Number of Confirmed Cases") + ggtitle("10 US States with Highest Confirmed COVID-19 Cases on 03/12/2020") + theme_bw()
 
