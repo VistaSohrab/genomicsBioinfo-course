@@ -17,6 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r loading libraries, warning=FALSE}
 library(tidyverse)
 library(hexbin)
+library(gridExtra)
 ```
 
 ## Plotting with ggplot2
@@ -145,4 +146,280 @@ ggplot(data= surveys_complete, mapping = aes(x = species_id, y = hindfoot_length
   geom_boxplot() + theme_bw()
 ```
 
+## Plotting Time Series Data
+
+To calculate the number of counts each year for each genus, the data needs to be grouped and records counted within that group.
+
+```{r}
+yearly_counts <- surveys_complete %>%
+  count(year, genus)
+
+yearly_counts
+```
+
+Timelapse data visualized as line plot with years on x-axis and counts on y-axis based on genus:
+
+```{r}
+ggplot(data = yearly_counts, aes(x = year, y = n, group=genus)) +
+     geom_line()+
+     theme_bw()
+```
+
+
+Same timelapse data visualization distinguishing by each genus in plot using varying colors:
+
+```{r}
+ggplot(data = yearly_counts, aes(x = year, y = n, color=genus)) +
+  geom_line()+
+  theme_bw()
+```
+
+## Integrating Pipe Operator with ggplot2
+
+Using the pipe operator to pass data arugment to ggplot2:
+
+```{r}
+yearly_counts %>% 
+  ggplot(aes(x = year,  y= n, color = genus))+
+  geom_line()+
+  theme_bw()
+```
+
+Linking data manipulation with consequent data visualization using pipes:
+
+```{r}
+yearly_counts_graph <- surveys_complete %>%
+    count(year, genus) %>% 
+    ggplot(mapping = aes(x = year, y = n, color = genus)) +
+    geom_line() +
+    theme_bw()
+
+yearly_counts_graph
+```
+
+## Faceting
+
+To create a time series plot for each genus, faceting is used to split one plot into multiple plots based on a factor in the dataset.
+
+```{r}
+ggplot(data = yearly_counts, aes(x = year, y = n))+
+  geom_line()+
+  facet_wrap(facets = vars(genus))+
+  theme_bw()
+```
+
+To split the line in each plot by the sex of each individual, the following steps are performed. Firstly, the data frame is grouped by sex in addition to year and genus. 
+
+```{r}
+yearly_sex_counts <- surveys_complete %>%
+                     count(year, genus, sex)
+
+yearly_sex_counts
+```
+
+
+Secondly, the faceted plot is created by passing this additional variable into the color argument.
+
+```{r}
+ggplot(data = yearly_sex_counts, mapping = aes(x = year, y = n, color = sex)) +
+  geom_line() +
+  facet_wrap(facets = vars(genus)) +
+  theme_bw()
+```
+
+Facet by both sex and genus in one plot:
+
+```{r}
+ggplot(data = yearly_sex_counts, 
+       mapping = aes(x = year, y = n, color = sex)) +
+  geom_line() +
+  facet_grid(rows = vars(sex), cols = vars(genus)) +
+  theme_bw()
+```
+
+Organizing the panels only by rows or columns:
+
+```{r}
+#One column, facet by rows
+ggplot(data = yearly_sex_counts, 
+       mapping = aes(x = year, y = n, color = sex)) +
+  geom_line() +
+  facet_grid(rows = vars(genus)) +
+  theme_bw()
+```
+
+```{r}
+#One row, facet by columns
+ggplot(data = yearly_sex_counts, 
+       mapping = aes(x = year, y = n, color = sex)) +
+  geom_line() +
+  facet_grid(cols = vars(genus)) +
+  theme_bw()
+```
+
+## ggplot2 Themes
+
+An example of a plot with white background:
+```{r}
+ggplot(data = yearly_sex_counts, 
+        mapping = aes(x = year, y = n, color = sex)) +
+     geom_line() +
+     facet_wrap(vars(genus)) +
+     theme_bw()
+```
+
+## Challenge 3
+
+A plot that depicts how the average weight of each species changes through the years:
+
+```{r}
+surveys_complete %>% 
+  group_by(year, species_id) %>% 
+  summarise(avg_weight = mean(weight)) %>% 
+  ggplot(aes(x = year, y = avg_weight))+
+  geom_line()+
+  facet_wrap(vars(species_id))+
+  theme_bw()
+```
+
+## Customization
+
+Improving the plots by adding informative axes labels and titles as well as adjusting font sizes, orientation and positioning of text.
+
+Adding axes labels and plot title:
+```{r}
+customize_plot <- ggplot(data = yearly_sex_counts, aes(x = year, y = n, color = sex)) +
+    geom_line() +
+    facet_wrap(vars(genus)) +
+    labs(title = "Observed genera through time",
+         x = "Year of observation",
+         y = "Number of individuals") +
+    theme_bw()
+customize_plot
+```
+
+Changing font size:
+```{r}
+customize_plot +
+    theme(text=element_text(size = 16))
+```
+
+Changing orientation of labels and adjusting them vertically and horizontally to avoid overlap as well as modification of text to italicize genus:
+
+```{r}
+customize_plot + 
+  theme(axis.text.x = element_text(colour = "grey20", size = 12, angle = 90, hjust =                                      0.5, vjust = 0.5),
+        axis.text.y = element_text(colour = "grey20", size = 12),
+        strip.text = element_text(face = "italic"),
+        text = element_text(size = 16))
+```
+
+If customization better than default theme, save it as an object to apply to other plots:
+
+```{r}
+#theme object 
+grey_theme <- theme(axis.text.x = element_text(colour="grey20", size = 12, 
+                                               angle = 90, hjust = 0.5, 
+                                               vjust = 0.5),
+                    axis.text.y = element_text(colour = "grey20", size = 12),
+                    text=element_text(size = 16))
+```
+
+```{r}
+#applying theme object to a barplot
+ggplot(surveys_complete, aes(x = species_id, y = hindfoot_length)) +
+    geom_boxplot() +
+    grey_theme
+```
+
+## Challenge 4
+
+The goal is to improve the following plot to make it more readable:
+```{r}
+ggplot(data = yearly_sex_counts, 
+       mapping = aes(x = year, y = n, color = sex)) +
+  geom_line() +
+  facet_grid(rows = vars(sex), cols =  vars(genus))
+```
+
+Plot theme object to apply to improved plot:
+```{r}
+plot_theme <- theme(axis.text.x = element_text(colour="grey10", size = 10, 
+                                               angle = 45, hjust = 0.5, 
+                                               vjust = 0.5),
+                    axis.text.y = element_text(colour = "grey10", size = 10),
+                    text=element_text(size = 12))
+```
+
+An improved and more readable plot with axes labeling and adjusting orientation to avoid overlaps:
+```{r, fig.height= 5, fig.width= 10}
+ggplot(data = yearly_sex_counts, 
+       mapping = aes(x = year, y = n, color = sex)) +
+  geom_line() +
+  facet_grid(rows = vars(sex), cols =  vars(genus)) +
+  labs(title = 'Observed genera through time',
+       x = 'Year of observation',
+       y = 'Number of individuals observed')+
+  theme_bw()+
+  theme(legend.position = "none")+
+  plot_theme
+```
+
+## Arranging and Exporting Plots
+
+Combining separate ggplots into a single figure using grid.arrange():
+
+```{r}
+
+spp_weight_boxplot <- ggplot(data = surveys_complete, 
+                             aes(x = species_id, y = weight)) +
+  geom_boxplot() +
+  labs(x = "Species", 
+       y = expression(log[10](Weight))) +
+  scale_y_log10() + 
+  labs()+
+  theme_bw()
+
+spp_weight_boxplot
+```
+
+
+```{r}
+spp_count_plot <- ggplot(data = yearly_counts, 
+                         aes(x = year, y = n, color = genus)) +
+  geom_line() + 
+  labs(x = "Year", y = "Abundance")+
+  theme_bw()
+
+spp_count_plot
+```
+
+Combining the previous 2 plots into a single side-by-side plot:
+
+```{r}
+grid.arrange(spp_weight_boxplot, spp_count_plot, ncol = 2, widths = c(4, 6))
+```
+
+Saving plots using ggsave:
+```{r, eval= FALSE}
+my_plot <- ggplot(data = yearly_sex_counts, 
+                  aes(x = year, y = n, color = sex)) +
+    geom_line() +
+    facet_wrap(vars(genus)) +
+    labs(title = "Observed genera through time",
+        x = "Year of observation",
+        y = "Number of individuals") +
+    theme_bw() +
+    theme(axis.text.x = element_text(colour = "grey20", size = 12, angle = 90,
+                                     hjust = 0.5, vjust = 0.5),
+          axis.text.y = element_text(colour = "grey20", size = 12),
+          text = element_text(size = 16))
+
+ggsave("name_of_file.png", my_plot, width = 15, height = 10)
+
+## This also works for grid.arrange() plots
+combo_plot <- grid.arrange(spp_weight_boxplot, spp_count_plot, ncol = 2, 
+                           widths = c(4, 6))
+ggsave("combo_plot_abun_weight.png", combo_plot, width = 10, dpi = 300)
+```
 
