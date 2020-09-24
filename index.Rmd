@@ -22,6 +22,7 @@ This site provides links to labs from the Evolutionary Genomics and Bioinformati
 * 3B: [Data Wrangling: Manipulating and Analyzing Data with tidyverse](lab3B_VistaSohrab.html)
 * 4: [Data Wrangling and Graphing COVID-19 Reporting Data - Part 1](lab4_VistaSohrab.html)
 * 4a: [Data Visualization with ggplot2](lab4a_VistaSohrab.html)
+* 5: [Data Wrangling and Graphing COVID-19 Reporting Data - Part 2](lab5_VistaSohrab.html)
 
 
 
