@@ -18,7 +18,7 @@ library(lubridate)
 
 ## Lab Exercises
 
-1) Data Visualization can be found in lab 4a: Data Visualization with ggplot2.
+1) Data Visualization can be found in [lab 4a: Data Visualization with ggplot2](lab4a_VistaSohrab.html).
 
 2) Obtain June 13, 2020 dataframe from JHU COVID-19 dashboard daily reports, and then filter to only include US data, while grouping by US states to identify the total confirmed COVID-19 cases for each US state.
 ```{r}
