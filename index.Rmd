@@ -24,5 +24,6 @@ This site provides links to labs from the Evolutionary Genomics and Bioinformati
 * 4a: [Data Visualization with ggplot2](lab4a_VistaSohrab.html)
 * 5: [Data Wrangling and Graphing COVID-19 Reporting Data - Part 2](lab5_VistaSohrab.html)
 * 5 Extra: [Interactive Graphs and Animations from the COVID-19 reporting data](lab5Extra_VistaSohrab.html)
+* 6: [Data Maps and Interactive Graphs from the COVID-19 reporting data](lab6_VistaSohrab.html)
 
 
