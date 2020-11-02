@@ -1,0 +1,231 @@
+---
+title: "Lab 9 Extra"
+author: "Vista Sohrab"
+date: "10/28/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Lab 9 Extra : Programming in R - Control Structures and Functions
+
+### Control Structures
+
+Commonly used control structures are:
+
+  * if and else: testing a condition and acting on it
+
+  * for: execute a loop a fixed number of times
+
+  * while: execute a loop while a condition is true
+  
+If-else statements have the following structure:
+```{r, eval = FALSE}
+if(<condition>) {
+        ## do something
+} 
+## Continue with rest of code
+```
+
+An else clause is added to execute when condition in the if statement is false.
+```{r, eval = FALSE}
+if(<condition>) {
+        ## do something
+} 
+else {
+        ## do something else
+}
+```
+
+A series of tests can following the initial if with any number of else ifs:
+
+```{r, eval = FALSE}
+if(<condition1>) {
+        ## do something
+} else if(<condition2>)  {
+        ## do something different
+} else {
+        ## do something different
+}
+```
+
+An example of a valid if/else structure is the following where y is set to 1 if the random number generated is less than 250 or 0 otherwise.
+
+```{r}
+## Generate a uniform random number
+x <- runif(1, 50, 500)  
+if(x < 250) {
+        y <- 1
+} else {
+        y <- 0
+}
+```
+
+
+### for loops
+
+
+This loop takes the "num" variable iterating from 1 through 10 and for each value calculates the square and prints out the square of that number. 
+```{r}
+for (num in 1:10){
+  num_squared = num^2
+  print(num_squared)
+}
+```
+
+For iterating through a vector and printing the values in the vector in uppercase:
+```{r}
+x <- c("apple", "blueberry", "cherry", "dates")
+for(i in 1:4) {
+        ## Print out each element of 'x'
+        print(toupper(x[i]))
+}
+```
+
+
+The seq_along() function is commonly used in conjunction with for loops in order to generate an integer sequence based on the length of an object which can also be used to iterate through vector x:
+
+```{r}
+for(i in seq_along(x)) {   
+        print(toupper(x[i]))
+}
+```
+
+It is not necessary to use an index-type variable to iterate through the vector. The 'in' keyword can be used for iteration:
+
+```{r}
+for(fruit_name in x) {
+        print(toupper(fruit_name))
+}
+```
+
+If writing a one-line loop then curly braces can be omitted:
+
+```{r}
+for(i in 1:4) print(toupper(x[i]))
+```
+
+### Nested for loops
+
+This is when multiple for loops are nested within one another. Multiple layers of nesting can make the code hard to understand which in that case writing a function could be more useful.
+```{r}
+x <- matrix(1:10, 2, 5)
+for(i in seq_len(nrow(x))) {
+        for(j in seq_len(ncol(x))) {
+                print(x[i, j])
+        }   
+}
+```
+
+### while loops
+
+While loops begin by testing a condition and if true results in execution of the loop body. Once the loop body is executed, the condition is tested again at each iteration, until the condition is no longer met leading to an exit from the while loop.
+```{r}
+count <- 0
+while(count < 5) {
+        print(count)
+        count <- count + 1
+}
+```
+
+There can be more than one condition in the test.
+
+```{r}
+z <- 5
+set.seed(1)
+while(z >= 4 && z <= 15) {
+        coin <- rbinom(1, 1, 0.5)
+        
+        if(coin == 1) {  ## random walk
+                z <- z + 1
+        } else {
+                z <- z - 1
+        } 
+}
+print(z)
+```
+
+### Functions
+
+Functions in R are first class objects, and they can be passed as arguments to other functions. They can also be nested.
+ 
+
+First function: 
+A simple function that takes no arguments and does nothing.
+```{r}
+f <- function(){
+  #empty function
+}
+
+class(f)
+
+f()
+```
+    
+Creating a function with a non-trivial body:
+
+```{r}
+f <- function(){
+  cat("Hello", "World!", sep = ", ")
+}
+
+f()
+```
+
+
+Function arguments are the options that you can specify to the user that the user may explicity set. For this basic function, we can add an argument that determines how many times “Hello, world!” is printed to the console.
+
+```{r}
+f <- function(num){
+  for (i in seq_len(num)){
+    cat("Hello, World!", sep = "\n")
+  }
+}
+
+f(5)
+```
+
+This next function returns the total number of characters printed to the console.
+
+```{r}
+f <- function(num, phrase){
+  for (i in seq_len(num)){
+    cat(phrase, sep = "\n")
+  }
+  chars <- nchar(phrase) * num
+  chars
+}
+
+f(3, "Hello, bioinformatics!")
+```
+
+A default value can be set for the argument n. This relieves the user from having to specify the value of that argument every single time the function is called.
+
+Here, for example, we could set the default value for num to be 1, so that if the function is called without the num argument being explicitly specified, then it will print “Hello, world!” to the console once.
+
+```{r}
+f <- function(num=1, phrase){
+  for (i in seq_len(num)){
+    cat(phrase, sep = "\n")
+  }
+  chars <- nchar(phrase) * num
+  chars
+}
+
+#default value for num argument
+f(phrase="Hello, bioinformatics!")
+
+#user specified value for num argument
+f(2, "Hello, bioinformatics!")
+```
+
+To use the named argument when calling the function:
+```{r}
+f(num=4, phrase = "Hello, bioinformatics!")
+```
+
+### Looping on the Command Line using apply family in R base or purrr in Tidyverse
+
+The apply family comprises: apply, lapply, sapply, vapply, mapply, rapply, and tapply. The Family of Apply functions pertains to the R base package, and is populated with functions to manipulate slices of data from matrices, arrays, lists and data frames in a repetitive way. In Tidyverse this functionality is covered by purrr. The apply and purrr functions in R are designed to avoid explicit use of loop constructs. They act on an input list, matrix or array, and apply a named function with one or several optional arguments.
