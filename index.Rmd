@@ -33,4 +33,5 @@ This site provides links to labs from the Evolutionary Genomics and Bioinformati
 * 7: [RNA-Seq workflow: gene-level exploratory analysis and differential expression](lab7_VistaSohrab.html)
 * 8: [Sequence Alignment, Phylogenetic Analysis and Tree Visualization](lab8_VistaSohrab.html)
 * 10: [Population genomics based on high throughput sequencing (HTS)](Lab10_VistaSohrab.html)
+* 11: [Microbiome analysis using dada2 and phyloseq](lab11_VistaSohrab.html)
 
